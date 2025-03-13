@@ -1,5 +1,6 @@
 # nLanE-DH
 Non-linear and non-empirical double hybrid (nLanE-DH) density functional derived through weak and strong correlation constraints of the adiabatic connection.
+
 Usage example He2+ molecule:
 ```
 from pyscf import gto
