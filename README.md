@@ -14,7 +14,7 @@ energy = return_energy(mol)
 Or supply xyz file:
 ```
 geom = "path_to_xyz.xyz"
-mol = gto.M(atom=geom, basis='cc-pvqz', unit="Angstrom", spin=1, charge=1, verbose=0)
+mol = gto.M(atom=geom, basis='cc-pvqz', unit="Angstrom")
 energy = return_energy(mol)
 ```
 
