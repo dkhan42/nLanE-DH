@@ -13,6 +13,9 @@ energy = return_energy(mol)
 
 Or supply xyz file:
 ```
+from pyscf import gto
+from nLanE import return_energy
+
 geom = "path_to_xyz.xyz"
 mol = gto.M(atom=geom, basis='cc-pvqz', unit="Angstrom")
 energy = return_energy(mol)
