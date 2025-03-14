@@ -63,7 +63,8 @@ def return_energy(mol, func = 'SCAN', integral = 'numerical'):
     mf_scf.xc = func
     #mf_scf.conv_tol_grad = 1e-10
     mf_scf.grids.atom_grid = (99, 590)
-    mf_scf = mf_scf.newton()
+    if func=="SCAN":
+        mf_scf = mf_scf.newton()
     energy = mf_scf.kernel()
 
     if not mf_scf.converged:
