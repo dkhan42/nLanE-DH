@@ -24,7 +24,7 @@ energy = return_energy(mol)
 ```
 
 
-For fast calculation use density-fitted SCF and MP2 calculations along with a simpler function for the SCF:
+For fast calculation use density-fitted SCF and MP2 calculations along with a simpler functional for the SCF:
 ```
 from pyscf import gto
 from nLanE_DF import return_energy #This script only does density-fitted calculations
