@@ -23,4 +23,25 @@ mol = gto.M(atom=geom, basis='cc-pvqz', unit="Angstrom")
 energy = return_energy(mol)
 ```
 
-To Do : Density fitting, RI-MP2
+
+For fast calculation use density-fitted SCF and MP2 calculations along with a simpler function for the SCF:
+```
+from pyscf import gto
+from nLanE_DF import return_energy
+
+geom = "path_to_xyz.xyz"
+mol = gto.M(atom=geom, basis='cc-pvqz', unit="Angstrom")
+energy = return_energy(mol, xcscf = 'R2SCAN') #Can use PBE for greater efficiency
+```
+
+
+
+To re-produce results from the paper use these settings with PySCF 2.8.0:
+```
+from pyscf import gto
+from nLanE import return_energy
+
+geom = "path_to_xyz.xyz"
+mol = gto.M(atom=geom, basis='def2-qzvpp', unit="Angstrom")
+energy = return_energy(mol, xcscf = 'SCAN', W1x = 'SCAN', W1c = 'SCAN') #Everything with SCAN and no density-fitting
+```
