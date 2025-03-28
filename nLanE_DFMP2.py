@@ -1,9 +1,12 @@
 import numpy as np
 from numpy import sqrt
-from pyscf import dft, scf
+from pyscf import dft
 from pyscf.mp.dfmp2_native import DFRMP2
-from pyscf.mp.dfump2_native import DFUMP2 # For RHF references; use DFUMP2 for UHF
+from pyscf.mp.dfump2_native import DFUMP2 
 from scipy.integrate import quad
+'''
+THIS SCRIPT HAS BEEN WRITTEN BY GPT O3-MINI BASED ON THE nLanE.py SCRIPT. USER DISCRETION IS ADVISED.
+'''
 
 def eval_xc(mol, mf, xc):
     '''
@@ -46,23 +49,33 @@ def solve_abc(Exx, Ec_MP2, W1):
     return a, b, c
 
 
-def return_energy(mol, func='SCAN', integral='numerical'):
+def return_energy(mol, xcscf='R2SCAN', W1x = 'SCAN', W1c = 'SCAN', integral='numerical'):
     '''
     Returns the energy of a given molecule using the double-hybrid (DH) functional evaluated on SCAN density and orbitals.
     MP2 correlation energy (from native DF-MP2) is used for the W'(0) slope constraint.
     
     In this implementation the SCF and MP2 steps use density fitting.
     For the MP2 part, we use the “native” DF-MP2 implementation (DFRMP2 for RHF references).
+    Inputs :
+    mol - mol object from pyscf GTO
+    xcscf - Choice of functional to run the SCF. All semi-local functionals seem to provide similar results.
+    W1x - Choice of exchange functional for the W1 limit. SCAN is recommended
+    W1c - Choice of correlation functional for the W1 limit. SCAN is recommended
+    integral - evaluate nLanE Exc analytically or numerically via scipy.quad
     '''
     # Use DFT KS object with density fitting.
     mf_scf = dft.KS(mol)
-    mf_scf.xc = func
-    if func == 'SCAN':
-        mf_scf.grids.atom_grid = (99, 590)
-        mf_scf = mf_scf.newton()
+    mf_scf.xc = xcscf
+    mf_scf.grids.atom_grid = (99, 590)
+    if xcscf=="SCAN":
+        mf_scf = mf_scf.newton() #SCAN SCFs are hard to converge
     # Enable density fitting for the SCF step.
     mf_scf = mf_scf.density_fit()
     energy = mf_scf.kernel()
+
+    if not mf_scf.converged:
+        raise ValueError("SCF not converged. Try reducing tolerance or use R2SCAN/PBE for SCF.")
+
     Exc = mf_scf.scf_summary['exc']
     # Evaluate HF exchange energy on the SCAN orbitals.
     Exx = eval_xc(mol, mf_scf, 'HF,')
@@ -77,13 +90,14 @@ def return_energy(mol, func='SCAN', integral='numerical'):
     Ec_MP2 = dfmp2.e_corr  # MP2 correlation energy.
 
     # Evaluate SCAN (or the chosen functional) correlation energy.
-    Ec = eval_xc(mol, mf_scf, f',SCAN')
-    if func == 'SCAN':
-        Ex = Exc - Ec  # SCAN exchange energy.
+    Ec = eval_xc(mol,mf_scf,f',{W1c}') #SCAN correlation energy
+
+    if xcscf=='SCAN':
+        Ex = Exc - Ec #SCAN exchange energy
     else:
-        Ex = eval_xc(mol, mf_scf, f'SCAN,')
+        Ex = eval_xc(mol,mf_scf,f'{W1x},') #SCAN exchange energy
     
-    W1 = Ex + 2 * Ec
+    W1 = Ex + 2 * Ec #W1 limit approximation using SCAN
     a, b, c = solve_abc(Exx, Ec_MP2, W1)
 
     if integral == 'numerical':
