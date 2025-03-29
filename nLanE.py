@@ -97,6 +97,9 @@ def return_energy(mol, xcscf = 'R2SCAN', W1x = 'SCAN', W1c = 'SCAN', integral = 
     if integral=='numerical':
       Exc_ac, _ =  quad(lambda lam: adiabatic_connection(lam, a, b, c), 0, 1, limit = 1000) #numerical integration of the adiabatic connection
     else:
-      Exc_ac = a + b*(((2*np.sqrt(2) - 2)/c) + (2*np.sqrt(1-c)/(c**1.5))*(np.arctan(np.sqrt(c/(1-c))) - np.arctan(np.sqrt(2*c/(1-c))))) #exact analytical form. np.arctan can cause numerical instabilities. Perhaps use series expansion
+      Exc_ac = a + b * (((2 * np.sqrt(2) - 2) / c) +
+                          (2 * np.sqrt(1 - c) / (c**1.5)) *
+                          (np.arctan(np.sqrt(c / (1 - c))) - 
+                           np.arctan(np.sqrt(2 * c / (1 - c))))) #exact analytical form. np.arctan can cause numerical instabilities. Perhaps use series expansion
 
     return energy - Exc + Exc_ac
