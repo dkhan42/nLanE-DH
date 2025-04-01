@@ -49,7 +49,7 @@ def solve_abc(Exx, Ec_MP2, W1):
     return a, b, c
 
 
-def return_energy(mol, xcscf='R2SCAN', W1x = 'SCAN', W1c = 'SCAN', integral='numerical'):
+def return_energy(mol, xcscf='R2SCAN', newton=False, W1x = 'SCAN', W1c = 'SCAN', integral='numerical'):
     '''
     Returns the energy of a given molecule using the double-hybrid (DH) functional evaluated on SCAN density and orbitals.
     MP2 correlation energy (from native DF-MP2) is used for the W'(0) slope constraint.
@@ -67,14 +67,14 @@ def return_energy(mol, xcscf='R2SCAN', W1x = 'SCAN', W1c = 'SCAN', integral='num
     mf_scf = dft.KS(mol)
     mf_scf.xc = xcscf
     mf_scf.grids.atom_grid = (99, 590)
-    if xcscf=="SCAN":
-        mf_scf = mf_scf.newton() #SCAN SCFs are hard to converge
+    if newton:
+        mf_scf = mf_scf.newton() #Highly recommended if xcscf='SCAN'
     # Enable density fitting for the SCF step.
     mf_scf = mf_scf.density_fit()
     energy = mf_scf.kernel()
 
     if not mf_scf.converged:
-        raise ValueError("SCF not converged. Try reducing tolerance or use R2SCAN/PBE for SCF.")
+        raise ValueError("SCF not converged. Use newton=True and/or a simpler functional for xcscf such as PBE.")
 
     Exc = mf_scf.scf_summary['exc']
     # Evaluate HF exchange energy on the SCAN orbitals.
