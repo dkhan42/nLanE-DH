@@ -54,7 +54,7 @@ def solve_abc(Exx, Ec_MP2, W1):
 
 
 
-def return_energy(mol, xcscf = 'R2SCAN', W1x = 'SCAN', W1c = 'SCAN', integral = 'numerical'):
+def return_energy(mol, xcscf = 'R2SCAN', newton=False, W1x = 'SCAN', W1c = 'SCAN', integral = 'numerical'):
     '''
     Returns the energy of a given molecule using the DH functional evaluated on SCAN density and orbitals
     Uses MP2 correlation energy rather than GL2 for the W'(0) slope constraint
@@ -69,12 +69,12 @@ def return_energy(mol, xcscf = 'R2SCAN', W1x = 'SCAN', W1c = 'SCAN', integral = 
     mf_scf.xc = xcscf
     #mf_scf.conv_tol_grad = 1e-10
     mf_scf.grids.atom_grid = (99, 590)
-    if xcscf=="SCAN":
-        mf_scf = mf_scf.newton() #SCAN SCFs are hard to converge
+    if newton:
+        mf_scf = mf_scf.newton() #Highly recommended if xcscf='SCAN'
     energy = mf_scf.kernel()
 
     if not mf_scf.converged:
-        raise ValueError("SCF not converged. Try reducing tolerance or use R2SCAN/PBE for SCF.")
+        raise ValueError("SCF not converged. Use newton=True and/or a simpler functional for xcscf such as PBE.")
 
     Exc = mf_scf.scf_summary['exc']
 
