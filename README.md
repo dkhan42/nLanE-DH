@@ -43,5 +43,5 @@ from nLanE import return_energy
 
 geom = "path_to_xyz.xyz"
 mol = gto.M(atom=geom, basis='def2-qzvpp', unit="Angstrom")
-energy = return_energy(mol, xcscf = 'SCAN', W1x = 'SCAN', W1c = 'SCAN') #Everything with SCAN and no density-fitting
+energy = return_energy(mol, xcscf = 'SCAN', newton=True, W1x = 'SCAN', W1c = 'SCAN') #Everything with SCAN and no density-fitting
 ```
